@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+
+<!-- VIEWPORT CORRETO PARA MOBILE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>CALC PARSHALL</title>
+
+<style>
+/* ===== ESTILOS GERAIS ===== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  margin: 0;
+  padding: 10px;
+  font-size: 16px;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
+
+.excel-container {
+  max-width: 760px;
+  margin: auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+/* ===== TABELA ===== */
+table.excel {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.excel th {
+  background: linear-gradient(90deg, #2c3e50, #3498db);
+  color: white;
+  font-size: 22px;
+  padding: 15px;
+  border: 3px solid #000;
+}
+
+table.excel td {
+  border: 2px solid #000;
+  height: 55px;
+}
+
+/* ===== RÓTULOS ===== */
+td.label {
+  background: #f1f3f5;
+  font-weight: bold;
+  padding-left: 20px;
+  width: 55%;
+  position: relative;
+}
+
+td.label::before {
+  content: "→";
+  position: absolute;
+  left: 8px;
+  color: #3498db;
+}
+
+/* ===== CAMPOS DE ENTRADA ===== */
+td.td-input {
+  background: #ffffcc;
+  width: 45%;
+}
+
+td.td-input select,
+td.td-input input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  outline: none;
+  padding: 0 12px;
+  touch-action: manipulation;
+}
+
+/* SELECT MELHOR NO ANDROID */
+td.td-input select {
+  appearance: auto;
+}
+
+/* ===== RESULTADOS ===== */
+td.result {
+  background: #cce5ff;
+  font-weight: bold;
+  text-align: center;
+  font-size: 20px;
+  color: #004085;
+}
+
+#QLs {
+  background: #d4edda;
+  color: #155724;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+/* ===== FÓRMULA ===== */
+td.formula {
+  text-align: center;
+  font-style: italic;
+  background: #f8f9fa;
+  font-size: 16px;
+}
+
+/* ===== SEPARADOR ===== */
+tr.sep td {
+  height: 10px;
+  background: #dee2e6;
+  border-left: 2px solid #000;
+  border-right: 2px solid #000;
+  border-top: none;
+  border-bottom: none;
+}
+
+/* ===== BOTÕES ===== */
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  background: #f8f9fa;
+}
+
+.action-btn {
+  height: 55px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+}
+
+.action-btn.recalc { background: #3498db; }
+.action-btn.clear  { background: #95a5a6; }
+.action-btn.print  { background: #27ae60; }
+
+/* ===== RODAPÉ ===== */
+.footer {
+  text-align: center;
+  padding: 12px;
+  background: #2c3e50;
+  color: white;
+  font-size: 13px;
+}
+
+/* ===== IMPRESSÃO ===== */
+@media print {
+  body { background: white; }
+  .buttons-container, .footer { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="excel-container">
+
+<table class="excel">
+<tr>
+  <th colspan="2">CALCULADORA PARSHALL – MEDIÇÃO DE VAZÃO</th>
+</tr>
+
+<tr>
+  <td class="label">Largura da Garganta (W)</td>
+  <td class="td-input">
+    <select id="B6" onchange="calcular()">
+      <option value="1">1"</option>
+      <option value="2">2"</option>
+      <option value="3">3"</option>
+      <option value="6" selected>6"</option>
+      <option value="9">9"</option>
+      <option value="12">12"</option>
+      <option value="18">18"</option>
+      <option value="24">24"</option>
+      <option value="36">36"</option>
+      <option value="48">48"</option>
+      <option value="60">60"</option>
+      <option value="72">72"</option>
+      <option value="84">84"</option>
+      <option value="96">96"</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td class="label">Altura da Lâmina H (cm)</td>
+  <td class="td-input">
+    <input
+      type="text"
+      id="Hcm"
+      value="17.00"
+      inputmode="decimal"
+      pattern="[0-9]*[.,]?[0-9]+"
+      oninput="calcular()"
+    >
+  </td>
+</tr>
+
+<tr class="sep"><td colspan="2"></td></tr>
+
+<tr>
+  <td class="label">      Coeficiente K</td>
+  <td class="result" id="K">0.381</td>
+</tr>
+
+<tr>
+  <td class="label">     Expoente n</td>
+  <td class="result" id="n">1.580</td>
+</tr>
+
+<tr class="sep"><td colspan="2"></td></tr>
+
+<tr>
+  <td class="label">     Vazão Q (m³/s)</td>
+  <td class="result" id="Qms">0.00000</td>
+</tr>
+
+<tr>
+  <td class="label">    Vazão Q (L/s)</td>
+  <td class="result" id="QLs">0.00</td>
+</tr>
+
+<tr class="sep"><td colspan="2"></td></tr>
+
+<tr>
+  <td class="label">Fórmula</td>
+  <td class="formula">Q = K × H<sup>n</sup></td>
+</tr>
+</table>
+
+<div class="buttons-container">
+  <button class="action-btn clear" onclick="limpar()">Limpar</button>
+  </div>
+
+<div class="footer">
+  © Calculadora Parshall 
+</div>
+
+</div>
+
+<script>
+/* ===== COEFICIENTES ===== */
+const coef = {
+  1:{K:0.06036120,n:1.550},2:{K:0.1207223,n:1.550},3:{K:0.176,n:1.547}, 
+  6:{K:0.381,n:1.580}, 9:{K:0.535,n:1.530},
+  12:{K:0.690,n:1.522},18:{K:1.054,n:1.538},24:{K:1.426,n:1.550},
+  36:{K:2.182,n:1.556},48:{K:2.935,n:1.578},60:{K:3.728,n:1.587},
+  72:{K:4.515,n:1.595},84:{K:5.306,n:1.601},96:{K:6.101,n:1.606}
+};
+
+/* ===== CÁLCULO ===== */
+function calcular() {
+  const W = document.getElementById("B6").value;
+  let Hcm = document.getElementById("Hcm").value.replace(",", ".");
+  Hcm = parseFloat(Hcm);
+
+  if (isNaN(Hcm) || Hcm < 0) Hcm = 0;
+
+  const H = Hcm / 100;
+  const K = coef[W].K;
+  const n = coef[W].n;
+
+  const Q = (H > 0) ? K * Math.pow(H, n) : 0;
+
+  document.getElementById("K").textContent = K.toFixed(3);
+  document.getElementById("n").textContent = n.toFixed(3);
+  document.getElementById("Qms").textContent = Q.toFixed(5);
+  document.getElementById("QLs").textContent = (Q * 1000).toFixed(2);
+}
+
+/* ===== LIMPAR ===== */
+function limpar() {
+  document.getElementById("Hcm").value = "0.00";
+  calcular();
+}
+
+/* ===== INICIAL ===== */
+window.onload = calcular;
+</script>
+
+</body>
+</html>
+,.
